@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 
-from reviews.models import Comment, Review,
+from reviews.models import Comment, Review, Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
