@@ -3,7 +3,8 @@ from django.utils import timezone
 
 
 def validate_title_year(value):
-    if value > timezone.now().year:
+     now = timezone.now().year
+     if value > now:
         raise ValidationError(
             ('Год выпуска %(value)s больше текущего.'),
             params={'value': value},
