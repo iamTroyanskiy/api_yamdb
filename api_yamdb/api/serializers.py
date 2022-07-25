@@ -1,20 +1,22 @@
-from rest_framework import serializers
-from reviews.models import Category, Genre, Title
-from rest_framework.exceptions import ValidationError
-from rest_framework.generics import get_object_or_404
-
-from reviews.models import Comment, Review, Title
-
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 from rest_framework import serializers
-from .exceptions import AlreadyExistException, AlreadyExistUserException
-from .utils import get_confirmation_code, send_email
+
+from reviews.models import (
+    Category,
+    Genre,
+    Comment,
+    Review,
+    Title
+)
 
 User = get_user_model()
 
+
 class ReviewSerializer(serializers.ModelSerializer):
-    """Сериализатор отзывов."""
 
     title = serializers.SlugRelatedField(
         slug_field='name',
@@ -45,7 +47,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """Сериализатор комментариев."""
 
     review = serializers.SlugRelatedField(
         slug_field='text',
@@ -76,6 +77,7 @@ class SignupSerializer(serializers.ModelSerializer):
 
 
 class GetAuthTokenSerializer(serializers.Serializer):
+
     username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(required=True)
 
@@ -103,18 +105,19 @@ class UsersSerializer(serializers.ModelSerializer):
             'role',
         ]
 
+
 class CategorySerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ('name', 'slug')
 
 
 class GenreSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = '__all__'
+        fields = ('name', 'slug')
 
 
 class TitlesReadSerializers(serializers.ModelSerializer):

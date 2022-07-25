@@ -1,12 +1,11 @@
-from django.contrib.auth.models import AbstractUser
-from django.core.validators import (
-    MaxValueValidator,
-    MinValueValidator,
-)
-from django.db import models
+from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .validators import validate_year
+
+
+User = get_user_model()
 
 
 class Category(models.Model):
@@ -22,6 +21,7 @@ class Category(models.Model):
     )
 
     class Meta:
+        ordering = ['name']
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -42,6 +42,7 @@ class Genre(models.Model):
     )
 
     class Meta:
+        ordering = ['name']
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
@@ -85,8 +86,8 @@ class Title(models.Model):
     def __str__(self):
         return self.name
 
+
 class Review(models.Model):
-    """Модель отзывы."""
 
     title = models.ForeignKey(
         Title,
@@ -113,7 +114,7 @@ class Review(models.Model):
     )
 
     class Meta:
-        ordering = ('-pub_date',)
+        ordering = ['-pub_date']
         verbose_name_plural = 'Отзывы'
         constraints = [
             models.UniqueConstraint(

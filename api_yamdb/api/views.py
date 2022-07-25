@@ -1,55 +1,47 @@
-from django.shortcuts import get_object_or_404
-
-from rest_framework import (
-    viewsets,
-)
-
-from .reviews.models import Review, Comment
-
-from .permissions import (
-    IsAdminModeratorOwnerOrReadOnly,
-)
-from .serializers import (
-    CommentSerializer,
-    ReviewSerializer,
-)
-
 from django.contrib.auth import get_user_model
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets
+from django.db.models import Avg
+from django_filters.rest_framework import DjangoFilterBackend
+
+
+from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import ErrorDetail
-from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
-
-from .exceptions import AlreadyExistException, AlreadyExistUserException
-from .permissions import IsAdmin
-from .serializers import SignupSerializer, GetAuthTokenSerializer, UsersSerializer
-from .utils import send_email, get_confirmation_code
-
-from django.db.models import Avg
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
 from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import ModelViewSet
 
 from api.filters import TitleFilter
-from .permissions import IsAdminUserOrReadOnly
-from reviews.models import Category, Genre, Title
-from .serializers import (CategorySerializers, GenreSerializers,
-                          TitlesReadSerializers, TitleWriteSerializers)
+from reviews.models import Category, Genre, Title, Review
 
+
+from .permissions import (
+    IsAdmin,
+    IsAdminOrReadOnly,
+    IsAdminModeratorOwnerOrReadOnly
+)
+from .utils import send_email, get_confirmation_code
+from .serializers import (
+    CategorySerializers,
+    GenreSerializers,
+    TitlesReadSerializers,
+    TitleWriteSerializers,
+    CommentSerializer,
+    ReviewSerializer,
+    SignupSerializer,
+    GetAuthTokenSerializer,
+    UsersSerializer,
+)
 
 
 User = get_user_model()
 
+
 class ReviewViewSet(viewsets.ModelViewSet):
-    """Вью-класс для отзывы."""
 
     serializer_class = ReviewSerializer
     permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
@@ -65,7 +57,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    """Вью-класс для комментарии."""
 
     serializer_class = CommentSerializer
     permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
@@ -79,7 +70,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id, title=title_id)
         serializer.save(author=self.request.user, review=review)
-
 
 
 class SignupView(APIView):
@@ -167,7 +157,8 @@ class UsersViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
-      
+
+
 class CategoryViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -176,7 +167,7 @@ class CategoryViewSet(
 ):
     queryset = Category.objects.all()
     serializer_class = CategorySerializers
-    permission_classes = [IsAdminUserOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = (SearchFilter, )
     search_fields = ('name', )
     lookup_field = 'slug'
@@ -190,7 +181,7 @@ class GenreViewSet(
 ):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializers
-    permission_classes = [IsAdminUserOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly, ]
     filter_backends = (SearchFilter, )
     search_fields = ('name', )
     lookup_field = 'slug'
@@ -198,8 +189,8 @@ class GenreViewSet(
 
 class TitleViewSet(ModelViewSet):
     queryset = Title.objects.annotate(
-        rating=Avg('reviews__score')).all()
-    permission_classes = [IsAdminUserOrReadOnly]
+        rating=Avg('reviews__score')).order_by('-id')
+    permission_classes = [IsAdminOrReadOnly, ]
     filter_backends = (DjangoFilterBackend, )
     filterset_class = TitleFilter
 

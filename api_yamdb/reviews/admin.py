@@ -6,6 +6,7 @@ from .models import Comment, Review
 reviews_models = [Comment, Review, ]
 admin.site.register(reviews_models)
 
+
 @admin.register(Category)
 class CategoriesAdmin(admin.ModelAdmin):
     list_display = (
@@ -36,6 +37,3 @@ class TitlesAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = ('name', )
     empty_value_display = '-пусто-'
-
-
-
