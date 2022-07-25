@@ -1,3 +1,20 @@
+
+from django.shortcuts import get_object_or_404
+
+from rest_framework import (
+    viewsets,
+)
+
+from .reviews.models import Review, Comment
+
+from .permissions import (
+    IsAdminModeratorOwnerOrReadOnly,
+)
+from .serializers import (
+    CommentSerializer,
+    ReviewSerializer,
+)
+
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -17,6 +34,39 @@ from .serializers import SignupSerializer, GetAuthTokenSerializer, UsersSerializ
 from .utils import send_email, get_confirmation_code
 
 User = get_user_model()
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    """Вью-класс для отзывы."""
+
+    serializer_class = ReviewSerializer
+    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    """Вью-класс для комментарии."""
+
+    serializer_class = CommentSerializer
+    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
+
+    def get_queryset(self):
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get('title_id')
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id, title=title_id)
+        serializer.save(author=self.request.user, review=review)
+
 
 
 class SignupView(APIView):
@@ -58,11 +108,6 @@ class SignupView(APIView):
         )
         send_email(username, email, confirmation_code)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
-
-
-
-
-
 
 
 class GetAuthTokenView(APIView):
@@ -109,4 +154,4 @@ class UsersViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
-
+      
