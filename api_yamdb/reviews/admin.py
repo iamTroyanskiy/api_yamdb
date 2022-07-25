@@ -1,7 +1,10 @@
 from django.contrib import admin
 
 from .models import Category, Genre, Title
+from .models import Comment, Review
 
+reviews_models = [Comment, Review, ]
+admin.site.register(reviews_models)
 
 @admin.register(Category)
 class CategoriesAdmin(admin.ModelAdmin):
@@ -33,3 +36,6 @@ class TitlesAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = ('name', )
     empty_value_display = '-пусто-'
+
+
+
