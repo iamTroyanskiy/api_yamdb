@@ -12,6 +12,7 @@ from .views import SignupView, GetAuthTokenView, UsersViewSet
 
 app_name = 'api_auth'
 
+
 router = SimpleRouter()
 router.register(r'users', UsersViewSet, basename='users')
 router.register(r'categories', CategoryViewSet, basename='categories')

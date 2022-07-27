@@ -18,23 +18,25 @@ from rest_framework.viewsets import ModelViewSet
 from api.filters import TitleFilter
 from reviews.models import Category, Genre, Title, Review
 
-
-from .permissions import (
-    IsAdmin,
-    IsAdminOrReadOnly,
-    IsAdminModeratorOwnerOrReadOnly
+from users.utils import send_email, get_confirmation_code
+from users.serializers import (
+    SignupSerializer,
+    GetAuthTokenSerializer,
+    UsersSerializer,
 )
-from .utils import send_email, get_confirmation_code
-from .serializers import (
+from reviews.serializers import (
     CategorySerializers,
     GenreSerializers,
     TitlesReadSerializers,
     TitleWriteSerializers,
     CommentSerializer,
     ReviewSerializer,
-    SignupSerializer,
-    GetAuthTokenSerializer,
-    UsersSerializer,
+)
+
+from .permissions import (
+    IsAdmin,
+    IsAdminOrReadOnly,
+    IsAdminModeratorOwnerOrReadOnly
 )
 
 
@@ -44,7 +46,7 @@ User = get_user_model()
 class ReviewViewSet(viewsets.ModelViewSet):
 
     serializer_class = ReviewSerializer
-    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
+    permission_classes = [IsAdminModeratorOwnerOrReadOnly, ]
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -59,7 +61,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
 
     serializer_class = CommentSerializer
-    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
+    permission_classes = [IsAdminModeratorOwnerOrReadOnly, ]
 
     def get_queryset(self):
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))

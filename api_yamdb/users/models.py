@@ -2,17 +2,10 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
+from users.enums import Roles
+
 
 class User(AbstractUser):
-
-    USER = "user"
-    MODERATOR = "moderator"
-    ADMIN = "admin"
-    USER_ROLES = (
-        (USER, "Пользователь"),
-        (MODERATOR, "Модератор"),
-        (ADMIN, "Администратор"),
-    )
 
     username_validator = RegexValidator(
         regex=r'^[\w.@+-]+$',
@@ -32,13 +25,25 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=150, blank=True)
     bio = models.TextField(blank=True)
     role = models.CharField(
-        max_length=14,
-        choices=USER_ROLES,
-        default=USER,
+        max_length=Roles.max_len(),
+        choices=Roles.get_choices(),
+        default=Roles.USER.name.lower()
     )
     confirmation_code = models.CharField(max_length=36, blank=True)
 
     USERNAME_FIELD = 'username'
+
+    @property
+    def is_admin(self):
+        return self.role == Roles.ADMIN.name.lower()
+
+    @property
+    def is_moderator(self):
+        return self.role == Roles.MODERATOR.name.lower()
+
+    @property
+    def is_user(self):
+        return self.role == Roles.USER.name.lower()
 
     class Meta:
         ordering = ['-id']

@@ -55,7 +55,6 @@ class Title(models.Model):
         'Название',
         max_length=256,
         db_index=True
-
     )
     year = models.IntegerField(
         'Год выпуска',
