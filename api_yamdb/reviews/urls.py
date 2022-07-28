@@ -8,13 +8,11 @@ from .views import (
     ReviewViewSet,
     CommentViewSet
 )
-from .views import SignupView, GetAuthTokenView, UsersViewSet
 
-app_name = 'api_auth'
+app_name = 'api_reviews'
 
 
 router = SimpleRouter()
-router.register(r'users', UsersViewSet, basename='users')
 router.register(r'categories', CategoryViewSet, basename='categories')
 router.register(r'genres', GenreViewSet, basename='genres')
 router.register(r'titles', TitleViewSet, basename='titles')
@@ -30,7 +28,5 @@ router.register(
 )
 
 urlpatterns = [
-    path('auth/signup/', SignupView.as_view()),
-    path('auth/token/', GetAuthTokenView.as_view()),
     path('', include(router.urls))
 ]
