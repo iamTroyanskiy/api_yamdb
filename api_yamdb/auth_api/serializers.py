@@ -1,25 +1,34 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import ValidationError
 
 from rest_framework.generics import get_object_or_404
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 User = get_user_model()
 
 
-class SignupSerializer(serializers.ModelSerializer):
+class SignupSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
 
-    class Meta:
-        model = User
-        fields = ('username', 'email')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=User.objects.all(),
-                fields=('username', 'email'),
-                message="AAAA"
+    def create(self, validated_data):
+        username = validated_data.get('username')
+        email = validated_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError(
+                'Пользователь с таким email уже существует'
             )
-        ]
+        if User.objects.filter(username=username).exists():
+            raise ValidationError(
+                'Пользователь с таким username уже существует'
+            )
+        instance, created = User.objects.get_or_create(
+            username=username,
+            email=email
+        )
+        return instance
+
     def validate_username(self, username):
         if username == 'me':
             raise serializers.ValidationError(

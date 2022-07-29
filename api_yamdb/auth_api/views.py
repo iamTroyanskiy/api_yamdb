@@ -17,58 +17,14 @@ User = get_user_model()
 
 
 class SignupView(APIView):
-
     permission_classes = [AllowAny, ]
-
-    @staticmethod
-    def is_existing_user(serializer):
-        len_serializer_data = len(serializer.data)
-        errors = serializer.errors
-        codes = [error[0].code for error in errors.values()]
-        return all(
-            [code == 'unique' for code in codes]
-        ) and len(codes) == len_serializer_data
-
-    # def post(self, request):
-    #     serializer = SignupSerializer(data=request.data)
-    #     serializer.is_valid()
-    #     confirmation_code = get_confirmation_code()
-    #     if serializer.errors:
-    #         if self.is_existing_user(serializer):
-    #             username = request.data['username']
-    #             email = request.data['email']
-    #             send_email(username, email, confirmation_code)
-    #             return Response(
-    #                 serializer.data,
-    #                 status=status.HTTP_200_OK
-    #             )
-    #         return Response(
-    #             serializer.errors,
-    #             status=status.HTTP_400_BAD_REQUEST
-    #         )
-    #     username = serializer.validated_data.get('username')
-    #     email = serializer.validated_data.get('email')
-    #     serializer.save(
-    #         username=username,
-    #         email=email,
-    #         confirmation_code=confirmation_code
-    #     )
-    #     send_email(username, email, confirmation_code)
-    #     return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         confirmation_code = get_confirmation_code()
-
-        username = serializer.validated_data.get('username')
-        email = serializer.validated_data.get('email')
-        serializer.save(
-            username=username,
-            email=email,
-            confirmation_code=confirmation_code
-        )
-        send_email(username, email, confirmation_code)
+        user = serializer.save()
+        send_email(user.username, user.email, confirmation_code)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
 
