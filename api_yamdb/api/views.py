@@ -23,7 +23,7 @@ class SignupView(APIView):
         serializer = SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         confirmation_code = get_confirmation_code()
-        user = serializer.save()
+        user = serializer.save(confirmation_code=confirmation_code)
         send_email(user.username, user.email, confirmation_code)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 

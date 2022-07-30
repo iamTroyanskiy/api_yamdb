@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 
@@ -18,21 +19,14 @@ class SignupSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
 
     def create(self, validated_data):
-        username = validated_data.get('username')
-        email = validated_data.get('email')
-        if User.objects.filter(email=email).exists():
+        try:
+            instance, created = User.objects.get_or_create(**validated_data)
+            return instance
+        except IntegrityError as integrity_error:
+            error_field = str(integrity_error)[37:]
             raise ValidationError(
-                'Пользователь с таким email уже существует'
+                f'Пользователь с таким {error_field} уже существует'
             )
-        if User.objects.filter(username=username).exists():
-            raise ValidationError(
-                'Пользователь с таким username уже существует'
-            )
-        instance, created = User.objects.get_or_create(
-            username=username,
-            email=email
-        )
-        return instance
 
     def validate_username(self, username):
         if username == 'me':
