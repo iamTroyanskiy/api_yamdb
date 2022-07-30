@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.utils import send_email, get_confirmation_code
-from .serializers import (
+from api.serializers import (
     SignupSerializer,
     GetAuthTokenSerializer,
 )

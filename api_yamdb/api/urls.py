@@ -1,7 +1,7 @@
 from django.urls import path
-from auth_api.views import SignupView, GetAuthTokenView
+from api.views import SignupView, GetAuthTokenView
 
-app_name = 'auth_api'
+app_name = 'api'
 
 
 urlpatterns = [

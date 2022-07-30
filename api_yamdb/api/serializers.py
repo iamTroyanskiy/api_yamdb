@@ -9,7 +9,12 @@ User = get_user_model()
 
 
 class SignupSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
+
+    username = serializers.RegexField(
+        regex=r'^[\w.@+-]+$',
+        max_length=150,
+        min_length=2,
+    )
     email = serializers.EmailField(required=True)
 
     def create(self, validated_data):
